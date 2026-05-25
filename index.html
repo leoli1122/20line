@@ -614,7 +614,7 @@ table.gantt tr.group-row td{font-weight:700;color:var(--blue);font-size:11px;}
 // ================================================================
 // DATA
 // ================================================================
-const TODAY = new Date(2026,4,22);
+const TODAY = new Date(); // 自動取得當下日期
 function d(m,day,y=2026){return new Date(y,m-1,day);}
 
 const TASK_TMPL=[
@@ -1131,8 +1131,8 @@ function dismissInstall(){
 }
 
 // Date
-const T=TODAY;
-document.getElementById('dateDisplay').textContent=`${T.getFullYear()}/${T.getMonth()+1}/${T.getDate()}`;
+
+document.getElementById("dateDisplay").textContent=`${TODAY.getFullYear()}/${TODAY.getMonth()+1}/${TODAY.getDate()}`;
 
 // ================================================================
 // INIT
