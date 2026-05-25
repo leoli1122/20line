@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="20線改造">
+<meta name="theme-color" content="#1d6aff">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>20線改造工程管理｜台塑尖端能源</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & BASE ===== */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --blue:#1d6aff; --blue-l:#eff6ff; --blue-b:#bfdbfe;
+  --green:#16a34a; --green-l:#f0fdf4; --green-b:#bbf7d0;
+  --red:#dc2626; --red-l:#fef2f2; --red-b:#fecaca;
+  --orange:#ea580c; --orange-l:#fff7ed; --orange-b:#fed7aa;
+  --yellow:#b45309; --yellow-l:#fffbeb; --yellow-b:#fde68a;
+  --purple:#7c3aed; --purple-l:#f5f3ff;
+  --text:#111827; --text2:#4b5563; --text3:#9ca3af;
+  --bg:#f3f4f6; --bg2:#ffffff; --bg3:#f9fafb;
+  --border:#e5e7eb; --border2:#d1d5db;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,.1);
+  --r:12px; --r-sm:8px;
+  --safe-top: env(safe-area-inset-top);
+  --safe-bot: env(safe-area-inset-bottom);
+}
+html,body{height:100%;overflow:hidden;}
+body{
+  font-family:'Noto Sans TC',sans-serif;
+  background:var(--bg); color:var(--text);
+  font-size:14px; line-height:1.5;
+  display:flex; flex-direction:column;
+}
+
+/* ===== TOP BAR ===== */
+.topbar{
+  background:#fff; border-bottom:1px solid var(--border);
+  padding: calc(var(--safe-top) + 10px) 16px 10px;
+  flex-shrink:0; position:relative; z-index:100;
+  box-shadow:0 1px 4px rgba(0,0,0,.06);
+}
+.topbar-row1{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.app-icon{
+  width:34px;height:34px;background:var(--blue);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;color:#fff;font-weight:900;flex-shrink:0;
+  box-shadow:0 2px 6px rgba(29,106,255,.3);
+}
+.app-title{font-size:15px;font-weight:700;color:var(--text);flex:1;}
+.app-sub{font-size:10px;color:var(--text3);}
+.topbar-badges{display:flex;gap:5px;flex-wrap:wrap;}
+.search-bar{
+  display:flex;align-items:center;gap:8px;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;padding:8px 12px;
+}
+.search-bar input{
+  flex:1;border:none;background:transparent;font-family:inherit;
+  font-size:13px;color:var(--text);outline:none;
+}
+.search-bar input::placeholder{color:var(--text3);}
+
+/* ===== MAIN CONTENT ===== */
+.main-content{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  padding-bottom:calc(var(--safe-bot) + 64px);
+}
+.tab-panel{display:none;padding:14px 14px 0;}
+.tab-panel.active{display:block;}
+
+/* ===== BOTTOM NAV ===== */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:#fff;border-top:1px solid var(--border);
+  display:flex;
+  padding-bottom:var(--safe-bot);
+  box-shadow:0 -2px 12px rgba(0,0,0,.08);
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  padding:8px 2px;gap:3px;cursor:pointer;
+  border:none;background:transparent;font-family:inherit;
+  transition:color .15s;color:var(--text3);min-width:0;
+}
+.nav-item.active{color:var(--blue);}
+.nav-icon{font-size:20px;line-height:1;}
+.nav-label{font-size:9px;font-weight:600;letter-spacing:.02em;white-space:nowrap;}
+
+/* ===== BADGES ===== */
+.badge{
+  padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;
+  display:inline-flex;align-items:center;gap:2px;white-space:nowrap;
+}
+.b-blue  {background:var(--blue-l);color:var(--blue);border:1px solid var(--blue-b);}
+.b-green {background:var(--green-l);color:var(--green);border:1px solid var(--green-b);}
+.b-red   {background:var(--red-l);color:var(--red);border:1px solid var(--red-b);}
+.b-orange{background:var(--orange-l);color:var(--orange);border:1px solid var(--orange-b);}
+.b-yellow{background:var(--yellow-l);color:var(--yellow);border:1px solid var(--yellow-b);}
+.b-gray  {background:var(--bg3);color:var(--text2);border:1px solid var(--border);}
+.b-purple{background:var(--purple-l);color:var(--purple);}
+
+/* ===== CARDS ===== */
+.card{
+  background:#fff;border:1px solid var(--border);border-radius:var(--r);
+  box-shadow:var(--shadow);overflow:hidden;margin-bottom:12px;
+}
+.card-header{
+  padding:12px 14px;border-bottom:1px solid var(--border);
+  background:var(--bg3);display:flex;align-items:center;
+  justify-content:space-between;gap:8px;
+}
+.card-title{font-size:13px;font-weight:700;}
+.card-body{padding:14px;}
+
+/* ===== STAT GRID ===== */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.stat-tile{
+  background:#fff;border:1px solid var(--border);border-radius:var(--r);
+  padding:14px;box-shadow:var(--shadow);position:relative;overflow:hidden;
+}
+.stat-tile::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r) var(--r) 0 0;
+}
+.st1::before{background:var(--blue);}
+.st2::before{background:var(--orange);}
+.st3::before{background:var(--green);}
+.st4::before{background:var(--yellow);}
+.st5::before{background:var(--red);}
+.stat-num{font-size:28px;font-weight:900;font-family:'JetBrains Mono',monospace;line-height:1;margin:4px 0;}
+.stat-lbl{font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
+.stat-sub{font-size:11px;color:var(--text2);margin-top:2px;}
+
+/* ===== SECTION TITLE ===== */
+.sec-title{
+  font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--text3);margin:14px 0 8px;display:flex;align-items:center;gap:8px;
+}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ===== LIST ITEMS ===== */
+.list-item{
+  background:#fff;border:1px solid var(--border);border-radius:var(--r-sm);
+  padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;
+  gap:10px;box-shadow:var(--shadow);transition:box-shadow .15s;
+  cursor:pointer;
+}
+.list-item:active{background:var(--bg3);}
+.list-item-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+.list-item-body{flex:1;min-width:0;}
+.list-item-title{font-size:13px;font-weight:600;margin-bottom:3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.list-item-sub{font-size:11px;color:var(--text2);}
+.list-item-right{flex-shrink:0;text-align:right;}
+
+/* ===== PROGRESS BAR ===== */
+.prog-wrap{background:#f3f4f6;border-radius:4px;height:5px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:4px;transition:width .4s;}
+
+/* ===== TASK CARDS (mobile-friendly) ===== */
+.task-card{
+  background:#fff;border:1px solid var(--border);border-radius:var(--r);
+  padding:14px;margin-bottom:10px;box-shadow:var(--shadow);
+}
+.task-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;}
+.task-card-name{font-size:13px;font-weight:600;flex:1;line-height:1.4;}
+.task-card-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px;}
+.task-card-dates{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:11px;color:var(--text2);margin-bottom:8px;
+  font-family:'JetBrains Mono',monospace;
+}
+.task-card-footer{display:flex;align-items:center;gap:8px;}
+.days-tag{font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 6px;border-radius:4px;}
+.dt-over{background:var(--red-l);color:var(--red);}
+.dt-warn{background:var(--yellow-l);color:var(--yellow);}
+.dt-ok  {background:var(--green-l);color:var(--green);}
+.dt-fut {background:var(--bg3);color:var(--text3);}
+
+/* ===== FILTER SCROLL ===== */
+.filter-scroll{
+  display:flex;gap:6px;overflow-x:auto;padding:0 0 8px;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch;
+  margin-bottom:10px;
+}
+.filter-scroll::-webkit-scrollbar{display:none;}
+.fchip{
+  padding:5px 12px;border-radius:14px;border:1px solid var(--border);
+  background:#fff;color:var(--text2);font-size:11px;cursor:pointer;
+  font-family:inherit;transition:all .15s;font-weight:600;flex-shrink:0;
+}
+.fchip.active{background:var(--blue);border-color:var(--blue);color:#fff;}
+
+/* ===== DETAIL DRAWER ===== */
+.drawer-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;
+  display:none;opacity:0;transition:opacity .25s;
+}
+.drawer-overlay.open{display:flex;align-items:flex-end;}
+.drawer-overlay.visible{opacity:1;}
+.drawer{
+  background:#fff;border-radius:20px 20px 0 0;width:100%;
+  max-height:85vh;overflow-y:auto;
+  transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);
+  padding-bottom:var(--safe-bot);
+}
+.drawer.slide-up{transform:translateY(0);}
+.drawer-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 0;}
+.drawer-body{padding:16px 18px 20px;}
+.drawer-title{font-size:16px;font-weight:700;margin-bottom:14px;}
+.drawer-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);align-items:center;}
+.drawer-row:last-child{border-bottom:none;}
+.drawer-label{font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
+.drawer-val{font-size:13px;color:var(--text);text-align:right;max-width:60%;}
+
+/* ===== CALENDAR MOBILE ===== */
+.cal-nav-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.cal-nav-btn{
+  width:34px;height:34px;border-radius:8px;border:1px solid var(--border);
+  background:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--text2);
+}
+.cal-month-lbl{font-size:15px;font-weight:700;}
+.cal-grid-hdr{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:2px;}
+.cal-dn{text-align:center;font-size:10px;font-weight:700;color:var(--text3);padding:3px;}
+.cal-days-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.cal-day{
+  min-height:52px;border-radius:6px;padding:4px;
+  background:var(--bg3);cursor:pointer;
+  transition:background .1s;
+}
+.cal-day:active{background:var(--blue-l);}
+.cal-day.today{background:var(--blue-l);border:1.5px solid var(--blue);}
+.cal-day.other{opacity:.3;}
+.cal-day-num{font-size:11px;font-weight:700;color:var(--text2);margin-bottom:2px;}
+.cal-day.today .cal-day-num{color:var(--blue);}
+.cal-dot{width:5px;height:5px;border-radius:50%;display:inline-block;margin:0 1px;}
+
+/* ===== MILESTONE SCROLL ===== */
+.ms-scroll{display:flex;gap:0;overflow-x:auto;padding:14px 0 8px;
+  position:relative;scrollbar-width:none;}
+.ms-scroll::-webkit-scrollbar{display:none;}
+.ms-scroll::before{
+  content:'';position:absolute;top:26px;left:0;right:0;height:2px;background:var(--border);z-index:0;
+}
+.ms-item{
+  display:flex;flex-direction:column;align-items:center;
+  min-width:110px;flex-shrink:0;position:relative;z-index:1;
+}
+.ms-dot{
+  width:24px;height:24px;border-radius:50%;border:2px solid var(--border2);
+  background:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;margin-bottom:6px;
+}
+.ms-dot.done  {background:var(--green);border-color:var(--green);color:#fff;}
+.ms-dot.active{background:var(--blue);border-color:var(--blue);color:#fff;animation:pulse 1.5s infinite;}
+.ms-dot.warn  {background:var(--yellow);border-color:var(--yellow);color:#fff;}
+.ms-dot.future{background:#fff;color:var(--text3);}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(29,106,255,.35)}50%{box-shadow:0 0 0 5px rgba(29,106,255,0)}}
+.ms-label{font-size:10px;font-weight:600;color:var(--text2);text-align:center;max-width:100px;line-height:1.3;}
+.ms-date{font-size:9px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px;}
+
+/* ===== UPDATE FORM ===== */
+.form-card{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);margin-bottom:12px;}
+.form-group{margin-bottom:12px;}
+.form-label{font-size:11px;font-weight:700;color:var(--text2);margin-bottom:5px;display:block;letter-spacing:.03em;}
+.form-control{
+  width:100%;background:var(--bg3);border:1px solid var(--border);
+  color:var(--text);padding:10px 12px;border-radius:8px;
+  font-family:inherit;font-size:14px;outline:none;transition:all .2s;
+  -webkit-appearance:none;
+}
+.form-control:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(29,106,255,.1);}
+textarea.form-control{resize:vertical;min-height:80px;}
+.btn{
+  padding:12px 18px;border-radius:10px;border:none;cursor:pointer;
+  font-family:inherit;font-size:14px;font-weight:700;transition:all .15s;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  -webkit-appearance:none;
+}
+.btn-primary{background:var(--blue);color:#fff;width:100%;}
+.btn-primary:active{background:#1558e0;}
+.btn-ghost{background:#fff;color:var(--text2);border:1px solid var(--border);}
+.btn-ghost:active{background:var(--bg3);}
+.btn-danger{background:var(--red-l);color:var(--red);border:1px solid var(--red-b);}
+.btn-row{display:flex;gap:8px;margin-top:12px;}
+
+/* ===== MEMORY ZONE ===== */
+.mem-entry{
+  background:#fff;border:1px solid var(--border);border-radius:var(--r);
+  padding:14px;margin-bottom:10px;box-shadow:var(--shadow);
+}
+.mem-entry-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px;}
+.mem-entry-title{font-size:13px;font-weight:700;}
+.mem-entry-body{font-size:12px;color:var(--text2);line-height:1.6;white-space:pre-wrap;margin-bottom:6px;}
+.mem-meta{font-size:10px;color:var(--text3);display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.mem-cat{padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;}
+.mc-dec{background:var(--blue-l);color:var(--blue);}
+.mc-iss{background:var(--red-l);color:var(--red);}
+.mc-note{background:var(--green-l);color:var(--green);}
+.mc-con{background:var(--purple-l);color:var(--purple);}
+.mc-les{background:var(--yellow-l);color:var(--yellow);}
+.mem-pin-btn,.mem-del-btn{
+  border:none;background:transparent;cursor:pointer;
+  font-size:16px;padding:2px;line-height:1;color:var(--text3);
+}
+.mem-pin-btn.on{color:var(--blue);}
+.mem-del-btn:active{color:var(--red);}
+.pinned-banner{
+  background:linear-gradient(135deg,var(--blue-l),#fff);
+  border:1px solid var(--blue-b);border-radius:var(--r);
+  padding:12px 14px;margin-bottom:10px;
+}
+.pinned-banner-title{font-size:11px;font-weight:700;color:var(--blue);margin-bottom:8px;
+  display:flex;align-items:center;gap:5px;}
+
+/* ===== OFFLINE BANNER ===== */
+.offline-bar{
+  background:#fef3c7;border-bottom:1px solid #fde68a;
+  padding:6px 14px;font-size:11px;font-weight:600;color:#92400e;
+  text-align:center;display:none;
+}
+.offline-bar.show{display:block;}
+
+/* ===== GANTT MOBILE ===== */
+.gantt-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table.gantt{border-collapse:collapse;font-size:10px;min-width:900px;}
+table.gantt th{
+  background:var(--bg3);padding:7px 5px;text-align:center;
+  border-bottom:1px solid var(--border);border-right:1px solid var(--border);
+  color:var(--text2);font-weight:700;font-size:9px;white-space:nowrap;
+}
+table.gantt th:first-child{text-align:left;padding-left:10px;min-width:160px;}
+table.gantt th:nth-child(2){min-width:56px;}
+table.gantt th.today-col{background:var(--blue-l);color:var(--blue);}
+table.gantt tr{border-bottom:1px solid #f3f4f6;}
+table.gantt td{padding:5px;border-right:1px solid #f3f4f6;vertical-align:middle;}
+table.gantt td:first-child{padding-left:10px;}
+table.gantt tr.group-row{background:#f0f4ff;}
+table.gantt tr.group-row td{font-weight:700;color:var(--blue);font-size:11px;}
+.g-bar{height:14px;border-radius:3px;cursor:pointer;}
+.gb-2  {background:var(--blue-l);border:1px solid var(--blue-b);}
+.gb-3  {background:var(--green-l);border:1px solid var(--green-b);}
+.gb-org{background:var(--orange-l);border:1px solid var(--orange-b);}
+.gb-red{background:var(--red-l);border:1px solid var(--red-b);}
+.today-cell{background:var(--blue-l);}
+
+/* ===== EMPTY ===== */
+.empty{text-align:center;padding:28px;color:var(--text3);font-size:13px;}
+
+/* ===== SCROLL ===== */
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+/* ===== TOAST ===== */
+#toast{
+  position:fixed;bottom:calc(var(--safe-bot) + 76px);left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:#1f2937;color:#fff;border-radius:20px;
+  padding:9px 18px;font-size:13px;font-weight:600;
+  white-space:nowrap;z-index:500;
+  opacity:0;transition:all .3s;pointer-events:none;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ===== INSTALL PROMPT ===== */
+#installBanner{
+  background:linear-gradient(135deg,#1d6aff,#0047cc);
+  color:#fff;padding:14px 16px;margin-bottom:12px;
+  border-radius:var(--r);display:none;
+  align-items:center;gap:12px;box-shadow:var(--shadow-md);
+}
+#installBanner.show{display:flex;}
+#installBanner .ib-text{flex:1;font-size:12px;line-height:1.4;}
+#installBanner .ib-title{font-weight:700;font-size:13px;margin-bottom:2px;}
+#installBanner .ib-btn{
+  background:#fff;color:var(--blue);border:none;border-radius:8px;
+  padding:8px 14px;font-family:inherit;font-size:12px;font-weight:700;
+  cursor:pointer;flex-shrink:0;
+}
+</style>
+</head>
+<body>
+
+<!-- OFFLINE BAR -->
+<div class="offline-bar" id="offlineBar">📵 離線模式 — 資料來自本機快取</div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-row1">
+    <div class="app-icon">20</div>
+    <div>
+      <div class="app-title">20線改造工程管理</div>
+      <div class="app-sub">台塑尖端能源 · 製二課 · 長濱廠</div>
+    </div>
+    <div style="margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
+      <span class="badge b-gray" id="dateDisplay" style="font-family:'JetBrains Mono',monospace;"></span>
+    </div>
+  </div>
+  <div class="topbar-badges" id="topBadges"></div>
+</div>
+
+<!-- MAIN -->
+<div class="main-content">
+
+  <!-- ===== OVERVIEW ===== -->
+  <div class="tab-panel active" id="tab-overview">
+    <!-- Install prompt (iOS) -->
+    <div id="installBanner">
+      <div class="ib-text">
+        <div class="ib-title">📲 加入主畫面</div>
+        點 Safari 分享按鈕 → 「加入主畫面」即可離線使用
+      </div>
+      <button class="ib-btn" onclick="dismissInstall()">知道了</button>
+    </div>
+
+    <div class="stat-grid" id="statsGrid"></div>
+    <div class="sec-title">🎯 里程碑</div>
+    <div class="card" style="padding:0 14px 12px;">
+      <div class="ms-scroll" id="msTrack"></div>
+    </div>
+    <div class="sec-title">⚠️ 需關注項目</div>
+    <div id="alertList"></div>
+    <div class="sec-title">🔔 近7天提醒</div>
+    <div id="remind7d"></div>
+  </div>
+
+  <!-- ===== TASKS ===== -->
+  <div class="tab-panel" id="tab-tasks">
+    <div class="filter-scroll" id="filterRow"></div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:8px;" id="filterCount"></div>
+    <div id="taskList"></div>
+  </div>
+
+  <!-- ===== GANTT ===== -->
+  <div class="tab-panel" id="tab-gantt">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">甘特圖 2026/06–09</span>
+        <div style="display:flex;gap:4px;">
+          <span class="badge b-blue">■二工</span>
+          <span class="badge b-orange">■三工</span>
+        </div>
+      </div>
+      <div class="gantt-scroll">
+        <table class="gantt" id="ganttTable"></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CALENDAR ===== -->
+  <div class="tab-panel" id="tab-calendar">
+    <div class="card card-body">
+      <div class="cal-nav-row">
+        <button class="cal-nav-btn" onclick="calNav(-1)">‹</button>
+        <div class="cal-month-lbl" id="calMonthLbl"></div>
+        <button class="cal-nav-btn" onclick="calNav(1)">›</button>
+      </div>
+      <div class="cal-grid-hdr">
+        <div class="cal-dn">日</div><div class="cal-dn">一</div><div class="cal-dn">二</div>
+        <div class="cal-dn">三</div><div class="cal-dn">四</div><div class="cal-dn">五</div>
+        <div class="cal-dn">六</div>
+      </div>
+      <div class="cal-days-grid" id="calDays"></div>
+    </div>
+    <div class="sec-title" style="margin-top:12px;">📌 事件列表</div>
+    <div id="calEvents"></div>
+  </div>
+
+  <!-- ===== UPDATE ===== -->
+  <div class="tab-panel" id="tab-update">
+    <div class="form-card">
+      <div class="form-group">
+        <label class="form-label">選擇工作項目</label>
+        <select class="form-control" id="updSel" onchange="loadUpd(this.value)">
+          <option value="">— 請選擇 —</option>
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="form-group">
+          <label class="form-label">完成率 (%)</label>
+          <input type="number" class="form-control" id="updPct" min="0" max="100" value="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">狀態</label>
+          <select class="form-control" id="updStatus">
+            <option value="pending">📋 待開始</option>
+            <option value="inprogress">🔨 施工中</option>
+            <option value="done">✅ 完成</option>
+            <option value="delay">⚠️ 延誤</option>
+            <option value="hold">⏸ 暫停</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="form-group">
+          <label class="form-label">實際開始</label>
+          <input type="date" class="form-control" id="updStart">
+        </div>
+        <div class="form-group">
+          <label class="form-label">預計完成</label>
+          <input type="date" class="form-control" id="updEnd">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">備註說明</label>
+        <textarea class="form-control" id="updNote" placeholder="施工進度、問題、待辦…"></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="saveUpd()">💾 儲存更新</button>
+    </div>
+    <div class="sec-title">📝 更新記錄</div>
+    <div id="updLog"></div>
+  </div>
+
+  <!-- ===== MEMORY ===== -->
+  <div class="tab-panel" id="tab-memory">
+    <!-- Add form -->
+    <div class="form-card">
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px;">📌 新增記憶</div>
+      <div class="form-group">
+        <label class="form-label">標題（必填）</label>
+        <input type="text" class="form-control" id="memTitle" placeholder="簡短標題">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="form-group">
+          <label class="form-label">分類</label>
+          <select class="form-control" id="memCat">
+            <option value="decision">📋 決策記錄</option>
+            <option value="issue">🔴 問題追蹤</option>
+            <option value="note">📝 施工筆記</option>
+            <option value="contact">👤 聯絡窗口</option>
+            <option value="lesson">💡 經驗教訓</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">優先級</label>
+          <select class="form-control" id="memPri">
+            <option value="high">🔴 高</option>
+            <option value="medium">🟡 中</option>
+            <option value="low">🟢 低</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">關聯工作項目（可選）</label>
+        <select class="form-control" id="memRef">
+          <option value="">— 不關聯 —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">內容</label>
+        <textarea class="form-control" id="memContent" placeholder="決策依據、問題描述、聯絡資訊…"></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="addMem()">📌 新增至記憶區</button>
+    </div>
+
+    <!-- Search & filter -->
+    <div class="filter-scroll" id="memCatFilter"></div>
+    <div class="card card-body" style="padding:8px 12px;margin-bottom:10px;">
+      <input type="text" class="form-control" id="memSearch"
+        placeholder="🔍 搜尋記憶…" oninput="renderMem()" style="background:var(--bg3);">
+    </div>
+
+    <!-- Pinned -->
+    <div id="pinnedMem"></div>
+
+    <!-- All entries -->
+    <div class="sec-title">全部記憶</div>
+    <div id="memList"></div>
+  </div>
+
+</div><!-- /main-content -->
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="switchTab('overview')">
+    <div class="nav-icon">📊</div><div class="nav-label">總覽</div>
+  </button>
+  <button class="nav-item" onclick="switchTab('tasks')">
+    <div class="nav-icon">📋</div><div class="nav-label">工作</div>
+  </button>
+  <button class="nav-item" onclick="switchTab('gantt')">
+    <div class="nav-icon">📅</div><div class="nav-label">甘特圖</div>
+  </button>
+  <button class="nav-item" onclick="switchTab('calendar')">
+    <div class="nav-icon">🗓</div><div class="nav-label">日歷</div>
+  </button>
+  <button class="nav-item" onclick="switchTab('update')">
+    <div class="nav-icon">✏️</div><div class="nav-label">更新</div>
+  </button>
+  <button class="nav-item" onclick="switchTab('memory')">
+    <div class="nav-icon">📌</div><div class="nav-label">記憶</div>
+  </button>
+</nav>
+
+<!-- DETAIL DRAWER -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()">
+  <div class="drawer" id="drawer" onclick="event.stopPropagation()">
+    <div class="drawer-handle"></div>
+    <div class="drawer-body" id="drawerBody"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ================================================================
+// DATA
+// ================================================================
+const TODAY = new Date(2026,4,22);
+function d(m,day,y=2026){return new Date(y,m-1,day);}
+
+const TASK_TMPL=[
+  {id:'2-1',dept:'二工段',idx:'1',name:'二工段施工前準備',start:d(6,7),end:d(6,15),workers:null,days:9,pct:0,status:'inprogress',note:''},
+  {id:'2-2',dept:'二工段',idx:'2',name:'42線設備拆解及搬運(10人)',start:d(6,16),end:d(6,18),workers:10,days:3,pct:0,status:'pending',note:''},
+  {id:'2-3',dept:'二工段',idx:'3',name:'20線組裝機台進機作業(10人)',start:d(6,19),end:d(6,27),workers:10,days:9,pct:0,status:'pending',note:''},
+  {id:'2-4',dept:'二工段',idx:'4',name:'20線組裝機台精定位(10人)',start:d(6,28),end:d(7,4),workers:10,days:7,pct:0,status:'pending',note:''},
+  {id:'2-5',dept:'二工段',idx:'5',name:'20線組裝機台輔機及機構定位',start:d(7,5),end:d(7,11),workers:10,days:7,pct:0,status:'pending',note:''},
+  {id:'2-6',dept:'二工段',idx:'6',name:'20線物流線安裝(奔騰龍+天珩)',start:d(7,5),end:d(7,28),workers:12,days:24,pct:0,status:'pending',note:''},
+  {id:'2-8',dept:'二工段',idx:'8',name:'20線組裝機台電儀施工',start:d(7,5),end:d(7,25),workers:6,days:21,pct:0,status:'pending',note:''},
+  {id:'2-9',dept:'二工段',idx:'9',name:'二次配管路施工',start:d(6,22),end:d(7,19),workers:null,days:28,pct:0,status:'pending',note:''},
+  {id:'2-10',dept:'二工段',idx:'10',name:'提升機施工改造(奔騰龍6人)',start:d(6,16),end:d(6,27),workers:6,days:12,pct:0,status:'pending',note:''},
+  {id:'2-11',dept:'二工段',idx:'11',name:'42線設備調適(空載/帶料)',start:d(7,19),end:d(8,1),workers:null,days:14,pct:0,status:'pending',note:''},
+  {id:'2-12',dept:'二工段',idx:'12',name:'20線設備調適(空跑)',start:d(7,19),end:d(8,8),workers:null,days:21,pct:0,status:'pending',note:''},
+  {id:'2-13',dept:'二工段',idx:'13',name:'20線設備調適(帶料)',start:d(8,2),end:d(9,12),workers:null,days:42,pct:0,status:'pending',note:''},
+  {id:'2-14',dept:'二工段',idx:'14',name:'42線既有設備維護作業',start:d(6,28),end:d(9,12),workers:null,days:76,pct:0,status:'pending',note:''},
+  {id:'2-15',dept:'二工段',idx:'15',name:'南側庫板開啟-封閉',start:d(6,19),end:d(6,27),workers:null,days:9,pct:0,status:'pending',note:''},
+  {id:'2-16',dept:'二工段',idx:'16',name:'北側庫板開啟-封閉',start:d(6,28),end:d(7,25),workers:null,days:28,pct:0,status:'pending',note:''},
+  {id:'3-1',dept:'三工段',idx:'1',name:'三工段施工前準備',start:d(6,7),end:d(6,20),workers:null,days:14,pct:0,status:'inprogress',note:''},
+  {id:'3-2',dept:'三工段',idx:'2',name:'活動庫板拆裝(含方形鋼整改)',start:d(6,21),end:d(6,24),workers:null,days:4,pct:0,status:'pending',note:''},
+  {id:'3-3',dept:'三工段',idx:'3',name:'電芯返工(製程)',start:d(6,21),end:d(7,11),workers:null,days:21,pct:0,status:'pending',note:''},
+  {id:'3-4',dept:'三工段',idx:'4',name:'動力系統整改及控制線路新增',start:d(6,21),end:d(8,1),workers:null,days:42,pct:0,status:'pending',note:''},
+  {id:'3-5',dept:'三工段',idx:'5',name:'42線倒立擠壓機拆解搬運(4機)',start:d(6,21),end:d(6,27),workers:null,days:7,pct:0,status:'pending',note:''},
+  {id:'3-6',dept:'三工段',idx:'6',name:'42線倒立擠壓機拆解搬運(2電)',start:d(6,21),end:d(6,27),workers:null,days:7,pct:0,status:'pending',note:''},
+  {id:'3-7',dept:'三工段',idx:'7',name:'提升機-烘烤上料物流施做',start:d(6,21),end:d(7,25),workers:null,days:35,pct:0,status:'pending',note:''},
+  {id:'3-8',dept:'三工段',idx:'8',name:'42線注液機及物流墊高改造(8機)',start:d(6,21),end:d(7,15),workers:null,days:25,pct:0,status:'pending',note:''},
+  {id:'3-9',dept:'三工段',idx:'9',name:'配合拆結線(犇騰隆)',start:d(6,21),end:d(7,15),workers:null,days:25,pct:0,status:'pending',note:''},
+  {id:'3-10',dept:'三工段',idx:'10',name:'20線注液機進機及精定位(8機)',start:d(7,16),end:d(8,1),workers:null,days:17,pct:0,status:'pending',note:''},
+  {id:'3-11',dept:'三工段',idx:'11',name:'20線封钉焊+二氦設備進機及精定位',start:d(7,16),end:d(8,1),workers:null,days:17,pct:0,status:'pending',note:''},
+  {id:'3-12',dept:'三工段',idx:'12',name:'20線烘烤至一注南實物流改造',start:d(7,16),end:d(8,5),workers:null,days:21,pct:0,status:'pending',note:''},
+  {id:'3-13',dept:'三工段',idx:'13',name:'化成-二注 南實物流改造',start:d(7,16),end:d(8,8),workers:null,days:24,pct:0,status:'pending',note:''},
+  {id:'3-14',dept:'三工段',idx:'14',name:'二注-贏合(路樂)物流',start:d(7,16),end:d(8,8),workers:null,days:24,pct:0,status:'pending',note:''},
+  {id:'3-15',dept:'三工段',idx:'15',name:'路樂物流改造(配合消防)',start:d(8,2),end:d(8,8),workers:null,days:7,pct:0,status:'pending',note:''},
+  {id:'3-16',dept:'三工段',idx:'16',name:'20線清洗機定位',start:d(8,2),end:d(8,8),workers:null,days:7,pct:0,status:'pending',note:''},
+  {id:'3-17',dept:'三工段',idx:'17',name:'清洗機下料南實物流裝機',start:d(7,26),end:d(8,11),workers:null,days:17,pct:0,status:'pending',note:''},
+  {id:'3-18',dept:'三工段',idx:'18',name:'風除室改造',start:d(8,9),end:d(8,22),workers:null,days:14,pct:0,status:'pending',note:''},
+  {id:'3-19',dept:'三工段',idx:'19',name:'20線注液機電儀施工(4電6機)',start:d(7,26),end:d(8,15),workers:10,days:21,pct:0,status:'pending',note:''},
+  {id:'3-20',dept:'三工段',idx:'20',name:'化成20線改造施工(2機、1電)',start:d(6,21),end:d(7,18),workers:3,days:28,pct:0,status:'pending',note:''},
+  {id:'3-21',dept:'三工段',idx:'21',name:'化成42線針板改造施工(4機、4電)',start:d(6,21),end:d(8,1),workers:8,days:42,pct:0,status:'pending',note:''},
+  {id:'3-22',dept:'三工段',idx:'22',name:'烘烤機械手更換及測試',start:d(8,1),end:d(8,15),workers:null,days:15,pct:0,status:'pending',note:''},
+  {id:'3-23',dept:'三工段',idx:'23',name:'分容20線改造(2機、2電)',start:d(7,12),end:d(8,1),workers:4,days:21,pct:0,status:'pending',note:''},
+  {id:'3-24',dept:'三工段',idx:'24',name:'電測20線施工定位(含探針更換)',start:d(8,2),end:d(8,22),workers:4,days:21,pct:0,status:'pending',note:''},
+  {id:'3-25',dept:'三工段',idx:'25',name:'分檔包膠物流設備拆除及回裝',start:d(7,12),end:d(7,18),workers:null,days:7,pct:0,status:'pending',note:''},
+  {id:'3-26',dept:'三工段',idx:'26',name:'分檔20線施工(4機、4電)',start:d(7,19),end:d(8,29),workers:8,days:42,pct:0,status:'pending',note:''},
+  {id:'3-27',dept:'三工段',idx:'27',name:'包膠20線施工-前段(4機)',start:d(7,19),end:d(8,1),workers:4,days:14,pct:0,status:'pending',note:''},
+  {id:'3-28',dept:'三工段',idx:'28',name:'包膠20線施工-後段(4機、3電)',start:d(7,26),end:d(8,15),workers:7,days:21,pct:0,status:'pending',note:''},
+  {id:'3-29',dept:'三工段',idx:'29',name:'20線物流施工(電測-分檔-包膠)',start:d(7,19),end:d(8,22),workers:6,days:35,pct:0,status:'pending',note:''},
+  {id:'3-30',dept:'三工段',idx:'30',name:'電測區返工物流整改',start:d(7,19),end:d(8,22),workers:null,days:35,pct:0,status:'pending',note:''},
+  {id:'3-31',dept:'三工段',idx:'31',name:'二次配管線',start:d(6,21),end:d(8,29),workers:null,days:70,pct:0,status:'pending',note:''},
+  {id:'3-32',dept:'三工段',idx:'32',name:'注液新增監視器安裝',start:d(8,30),end:d(9,5),workers:null,days:7,pct:0,status:'pending',note:''},
+];
+
+const MILESTONES=[
+  {label:'施工前準備完成',date:d(6,20)},
+  {label:'42線搬遷完成',date:d(6,27)},
+  {label:'20線進機完成',date:d(7,4)},
+  {label:'精定位完成',date:d(7,11)},
+  {label:'電儀施工完成',date:d(7,28)},
+  {label:'調適開始',date:d(7,19)},
+  {label:'帶料調試完成',date:d(9,12)},
+];
+
+// ================================================================
+// STATE
+// ================================================================
+function loadTasks(){
+  try{const r=localStorage.getItem('t20v3');if(r) return JSON.parse(r).map(t=>({...t,start:new Date(t.start),end:new Date(t.end)}));}catch{}
+  return TASK_TMPL.map(t=>({...t,start:new Date(t.start),end:new Date(t.end)}));
+}
+function loadMem(){try{return JSON.parse(localStorage.getItem('m20v1')||'[]');}catch{return[];}}
+function loadLog(){try{return JSON.parse(localStorage.getItem('l20v1')||'[]');}catch{return[];}}
+let tasks=loadTasks(), mems=loadMem(), logs=loadLog();
+let activeF='all', calY=2026, calM=5, memCatF='all';
+const sv=t=>localStorage.setItem('t20v3',JSON.stringify(t));
+const sm=m=>localStorage.setItem('m20v1',JSON.stringify(m));
+const sl=l=>localStorage.setItem('l20v1',JSON.stringify(l));
+
+// ================================================================
+// HELPERS
+// ================================================================
+const dd=(a,b)=>Math.round((new Date(b)-new Date(a))/86400000);
+const fd=d=>{const t=new Date(d);return`${t.getMonth()+1}/${t.getDate()}`;};
+const ff=d=>{const t=new Date(d);return`${t.getFullYear()}/${String(t.getMonth()+1).padStart(2,'0')}/${String(t.getDate()).padStart(2,'0')}`;};
+
+function gs(t){
+  if(t.pct>=100||t.status==='done') return 'done';
+  if(t.status==='delay') return 'delay';
+  if(t.status==='hold') return 'hold';
+  const e=new Date(t.end),s=new Date(t.start);
+  if(TODAY>e) return 'overdue';
+  const dl=dd(TODAY,e);
+  if(TODAY>=s&&dl<=7) return 'warning';
+  if(TODAY>=s) return 'inprogress';
+  return 'pending';
+}
+
+function sb(s){
+  const m={done:['b-green','✅ 完成'],overdue:['b-red','🔴 逾期'],
+    warning:['b-yellow','⚠️ 警示'],inprogress:['b-blue','🔨 施工中'],
+    pending:['b-gray','📋 待開始'],delay:['b-red','⚠️ 延誤'],hold:['b-yellow','⏸ 暫停']};
+  const [c,t]=m[s]||['b-gray','未知'];
+  return `<span class="badge ${c}">${t}</span>`;
+}
+function db(dept){
+  return `<span class="badge ${dept==='二工段'?'b-blue':'b-orange'}">${dept}</span>`;
+}
+function pb(pct){
+  const col=pct>=100?'var(--green)':pct>60?'var(--blue)':'var(--orange)';
+  return `<div style="display:flex;align-items:center;gap:6px;">
+    <div class="prog-wrap" style="width:80px"><div class="prog-fill" style="width:${pct}%;background:${col}"></div></div>
+    <span style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text2)">${pct}%</span></div>`;
+}
+
+// ================================================================
+// OVERVIEW
+// ================================================================
+function renderStats(){
+  const total=tasks.length,done=tasks.filter(t=>gs(t)==='done').length,
+    over=tasks.filter(t=>gs(t)==='overdue').length,
+    inp=tasks.filter(t=>gs(t)==='inprogress').length,
+    warn=tasks.filter(t=>gs(t)==='warning').length;
+  document.getElementById('topBadges').innerHTML=`
+    <span class="badge b-red">逾期 ${over}</span>
+    <span class="badge b-yellow">警示 ${warn}</span>
+    <span class="badge b-green">完成 ${done}</span>`;
+  document.getElementById('statsGrid').innerHTML=`
+    <div class="stat-tile st1"><div class="stat-lbl">工作總數</div><div class="stat-num" style="color:var(--blue)">${total}</div><div class="stat-sub">二+三工段</div></div>
+    <div class="stat-tile st2"><div class="stat-lbl">施工中</div><div class="stat-num" style="color:var(--orange)">${inp}</div><div class="stat-sub">進行中</div></div>
+    <div class="stat-tile st3"><div class="stat-lbl">已完成</div><div class="stat-num" style="color:var(--green)">${done}</div><div class="stat-sub">${total?Math.round(done/total*100):0}%</div></div>
+    <div class="stat-tile st4"><div class="stat-lbl">警示</div><div class="stat-num" style="color:var(--yellow)">${warn}</div><div class="stat-sub">7天內截止</div></div>
+    <div class="stat-tile st5" style="grid-column:span 2"><div class="stat-lbl">逾期未完</div><div class="stat-num" style="color:var(--red);font-size:22px;display:inline">${over}</div><span style="font-size:13px;color:var(--text2);margin-left:8px;">需立即跟進</span></div>`;
+}
+
+function renderAlerts(){
+  const list=tasks.filter(t=>{const s=gs(t);return s==='overdue'||s==='warning'||s==='delay';})
+    .sort((a,b)=>new Date(a.end)-new Date(b.end));
+  document.getElementById('alertList').innerHTML=list.slice(0,8).map(t=>{
+    const s=gs(t),dl=dd(TODAY,new Date(t.end));
+    const dc=dl<0?'dt-over':dl<=3?'dt-warn':'dt-ok';
+    const ds=dl<0?`逾${Math.abs(dl)}天`:`剩${dl}天`;
+    return `<div class="list-item" onclick="openDrawer('${t.id}')">
+      <div class="list-item-icon">${s==='overdue'?'🔴':'⚠️'}</div>
+      <div class="list-item-body">
+        <div class="list-item-title">${t.name}</div>
+        <div class="list-item-sub">${t.dept} · 截止 ${fd(t.end)}</div>
+        <div style="margin-top:5px">${pb(t.pct)}</div>
+      </div>
+      <div class="list-item-right"><span class="days-tag ${dc}">${ds}</span><br><br>${sb(s)}</div>
+    </div>`;
+  }).join('')||'<div class="empty">🎉 暫無待關注項目</div>';
+}
+
+function renderRemind7d(){
+  const evts=[];
+  tasks.forEach(t=>{
+    const ds=dd(TODAY,new Date(t.start)),de=dd(TODAY,new Date(t.end));
+    if(ds>=0&&ds<=7&&t.pct<100) evts.push({t,type:'start',days:ds});
+    else if(de>=0&&de<=7&&t.pct<100) evts.push({t,type:'end',days:de});
+  });
+  evts.sort((a,b)=>a.days-b.days);
+  document.getElementById('remind7d').innerHTML=evts.slice(0,8).map(({t,type,days})=>{
+    const icon=type==='start'?'🟢':days<=3?'🔴':'🟡';
+    return `<div class="list-item" onclick="openDrawer('${t.id}')">
+      <div class="list-item-icon">${icon}</div>
+      <div class="list-item-body">
+        <div class="list-item-title">${t.name}</div>
+        <div class="list-item-sub">${t.dept} · ${type==='start'?'開始':'截止'} ${type==='start'?fd(t.start):fd(t.end)}</div>
+      </div>
+      <div class="list-item-right" style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text3);">${days===0?'今天':days+'天後'}</div>
+    </div>`;
+  }).join('')||'<div class="empty">本週無重要提醒</div>';
+}
+
+// ================================================================
+// MILESTONES
+// ================================================================
+function renderMilestone(){
+  document.getElementById('msTrack').innerHTML=MILESTONES.map(m=>{
+    const diff=dd(TODAY,m.date);
+    const status=diff<0?'done':diff===0?'active':diff<=7?'warn':'future';
+    const icon=status==='done'?'✓':status==='active'?'●':status==='warn'?'!':'○';
+    const dc=diff<0?'var(--green)':diff<=3?'var(--red)':'var(--text3)';
+    const ds=diff<0?`過${Math.abs(diff)}天`:diff===0?'今日':`${diff}天`;
+    return `<div class="ms-item">
+      <div class="ms-dot ${status}">${icon}</div>
+      <div class="ms-label">${m.label}</div>
+      <div class="ms-date">${fd(m.date)}<br><span style="color:${dc}">${ds}</span></div>
+    </div>`;
+  }).join('');
+}
+
+// ================================================================
+// TASKS
+// ================================================================
+function renderFilterBtns(){
+  const fs=['all','二工段','三工段','pending','inprogress','done','overdue','warning'];
+  const lb={all:'全部',二工段:'二工段',三工段:'三工段',pending:'待開始',inprogress:'施工中',done:'完成',overdue:'逾期',warning:'警示'};
+  document.getElementById('filterRow').innerHTML=fs.map(f=>`<button class="fchip ${activeF===f?'active':''}" onclick="setF('${f}')">${lb[f]}</button>`).join('');
+}
+function setF(f){activeF=f;renderTasks();}
+function renderTasks(){
+  renderFilterBtns();
+  let list=tasks.filter(t=>{
+    if(activeF==='all') return true;
+    if(['二工段','三工段'].includes(activeF)) return t.dept===activeF;
+    return gs(t)===activeF;
+  });
+  document.getElementById('filterCount').textContent=`顯示 ${list.length} / ${tasks.length} 筆`;
+  document.getElementById('taskList').innerHTML=list.map(t=>{
+    const s=gs(t),dl=dd(TODAY,new Date(t.end));
+    const dc=dl<0?'dt-over':dl<=3?'dt-warn':dl<=7?'dt-warn':'dt-fut';
+    const ds=dl<0?`逾${Math.abs(dl)}天`:s==='done'?'完成':`剩${dl}天`;
+    return `<div class="task-card" onclick="openDrawer('${t.id}')">
+      <div class="task-card-header">
+        <div class="task-card-name">${t.name}</div>
+        ${sb(s)}
+      </div>
+      <div class="task-card-meta">${db(t.dept)}<span class="days-tag ${dc}">${fd(t.end)} ${ds}</span>${t.workers?`<span class="badge b-gray">👷 ${t.workers}人</span>`:''}</div>
+      <div class="task-card-footer">${pb(t.pct)}</div>
+    </div>`;
+  }).join('')||'<div class="empty">無符合條件</div>';
+}
+
+// ================================================================
+// DRAWER
+// ================================================================
+function openDrawer(id){
+  const t=tasks.find(x=>x.id===id);if(!t) return;
+  const s=gs(t),dl=dd(TODAY,new Date(t.end));
+  const dc=dl<0?'dt-over':dl<=3?'dt-warn':'dt-fut';
+  const ds=dl<0?`逾期 ${Math.abs(dl)} 天`:`剩餘 ${dl} 天`;
+  document.getElementById('drawerBody').innerHTML=`
+    <div class="drawer-title">${t.name}</div>
+    <div class="drawer-row"><span class="drawer-label">工段</span><span class="drawer-val">${db(t.dept)}</span></div>
+    <div class="drawer-row"><span class="drawer-label">項次</span><span class="drawer-val" style="font-family:'JetBrains Mono',monospace">${t.idx}</span></div>
+    <div class="drawer-row"><span class="drawer-label">開始日期</span><span class="drawer-val" style="font-family:'JetBrains Mono',monospace">${ff(t.start)}</span></div>
+    <div class="drawer-row"><span class="drawer-label">完成日期</span><span class="drawer-val" style="font-family:'JetBrains Mono',monospace">${ff(t.end)}</span></div>
+    <div class="drawer-row"><span class="drawer-label">天數/人數</span><span class="drawer-val">${t.days||'-'} 天 / ${t.workers||'-'} 人</span></div>
+    <div class="drawer-row"><span class="drawer-label">完成率</span><span class="drawer-val">${pb(t.pct)}</span></div>
+    <div class="drawer-row"><span class="drawer-label">狀態</span><span class="drawer-val">${sb(s)}</span></div>
+    <div class="drawer-row"><span class="drawer-label">剩餘時間</span><span class="drawer-val"><span class="days-tag ${dc}">${ds}</span></span></div>
+    ${t.note?`<div class="drawer-row" style="flex-direction:column;align-items:flex-start;gap:4px"><span class="drawer-label">備註</span><span style="font-size:12px;color:var(--text2);line-height:1.6">${t.note}</span></div>`:''}
+    <div class="btn-row" style="margin-top:14px">
+      <button class="btn btn-primary" style="flex:1" onclick="closeDrawer();switchTab('update');document.getElementById('updSel').value='${t.id}';loadUpd('${t.id}')">✏️ 更新進度</button>
+      <button class="btn btn-ghost" onclick="closeDrawer()">關閉</button>
+    </div>`;
+  const ov=document.getElementById('drawerOverlay');
+  const dr=document.getElementById('drawer');
+  ov.style.display='flex';
+  requestAnimationFrame(()=>{ov.classList.add('visible');dr.classList.add('slide-up');});
+}
+function closeDrawer(){
+  const ov=document.getElementById('drawerOverlay'),dr=document.getElementById('drawer');
+  ov.classList.remove('visible');dr.classList.remove('slide-up');
+  setTimeout(()=>{ov.style.display='none';},250);
+}
+
+// ================================================================
+// GANTT
+// ================================================================
+function renderGantt(){
+  const weeks=[];let cur=new Date(2026,5,7);const fin=new Date(2026,8,12);
+  while(cur<=fin){weeks.push(new Date(cur));cur.setDate(cur.getDate()+7);}
+  const isTW=w=>{const n=new Date(w);n.setDate(n.getDate()+7);return TODAY>=w&&TODAY<n;};
+  const hdr=`<thead><tr><th>工作內容</th><th>工段</th>
+    ${weeks.map(w=>`<th class="${isTW(w)?'today-col':''}">${w.getMonth()+1}/${w.getDate()}</th>`).join('')}
+  </tr></thead>`;
+  let rows='';
+  ['二工段','三工段'].forEach(g=>{
+    rows+=`<tr class="group-row"><td colspan="${2+weeks.length}">▸ ${g}</td></tr>`;
+    tasks.filter(t=>t.dept===g).forEach(t=>{
+      const s=gs(t);
+      const cells=weeks.map(w=>{
+        const wE=new Date(w);wE.setDate(wE.getDate()+7);
+        const tS=new Date(t.start),tE=new Date(t.end);
+        const ov=tS<wE&&tE>=w;
+        const mk=isTW(w)?'today-cell':'';
+        if(!ov) return `<td class="${mk}"></td>`;
+        let bc=g==='二工段'?'gb-2':'gb-org';
+        if(s==='done') bc='gb-3'; else if(s==='overdue') bc='gb-red';
+        return `<td class="${mk}" style="padding:3px 2px"><div class="g-bar ${bc}" onclick="openDrawer('${t.id}')"></div></td>`;
+      }).join('');
+      const n=t.name.length>22?t.name.slice(0,20)+'…':t.name;
+      rows+=`<tr><td style="cursor:pointer" onclick="openDrawer('${t.id}')">${n}</td><td>${db(t.dept)}</td>${cells}</tr>`;
+    });
+  });
+  document.getElementById('ganttTable').innerHTML=hdr+`<tbody>${rows}</tbody>`;
+}
+
+// ================================================================
+// CALENDAR
+// ================================================================
+function renderCal(){
+  const mn=['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+  document.getElementById('calMonthLbl').textContent=`${calY}年 ${mn[calM]}`;
+  const first=new Date(calY,calM,1),last=new Date(calY,calM+1,0).getDate(),dow=first.getDay();
+  let html='';
+  for(let i=0;i<dow;i++) html+=`<div class="cal-day other"></div>`;
+  for(let day=1;day<=last;day++){
+    const dt=new Date(calY,calM,day);
+    const isT=dt.toDateString()===TODAY.toDateString();
+    const evts=getCalEvts(dt);
+    const dots=evts.slice(0,3).map(e=>`<span class="cal-dot" style="background:${e.color}"></span>`).join('');
+    html+=`<div class="cal-day ${isT?'today':''}" onclick="showCalDay(${calY},${calM},${day})">
+      <div class="cal-day-num">${day}</div><div>${dots}</div></div>`;
+  }
+  document.getElementById('calDays').innerHTML=html;
+  renderCalEvents();
+}
+function getCalEvts(dt){
+  const evts=[];
+  tasks.forEach(t=>{
+    const sd=new Date(new Date(t.start).setHours(0,0,0,0));
+    const ed=new Date(new Date(t.end).setHours(0,0,0,0));
+    const dd2=new Date(dt.setHours(0,0,0,0));
+    if(sd.getTime()===dd2.getTime()) evts.push({name:t.name,color:'#16a34a',type:'start',t});
+    if(ed.getTime()===dd2.getTime()){const s=gs(t);evts.push({name:t.name,color:s==='overdue'?'#dc2626':'#1d6aff',type:'end',t});}
+  });
+  return evts;
+}
+function renderCalEvents(){
+  const all=[];
+  tasks.forEach(t=>{
+    const de=dd(TODAY,new Date(t.end)),ds=dd(TODAY,new Date(t.start));
+    if(de>=0&&de<=14&&t.pct<100) all.push({t,type:'end',days:de});
+    if(ds>=0&&ds<=7) all.push({t,type:'start',days:ds});
+  });
+  all.sort((a,b)=>a.days-b.days);
+  document.getElementById('calEvents').innerHTML=all.slice(0,15).map(({t,type,days})=>`
+    <div class="list-item" onclick="openDrawer('${t.id}')">
+      <div class="list-item-icon">${type==='start'?'🟢':days<=3?'🔴':'🟡'}</div>
+      <div class="list-item-body">
+        <div class="list-item-title">${t.name}</div>
+        <div class="list-item-sub">${t.dept} · ${type==='start'?'開始':'截止'} ${type==='start'?fd(t.start):fd(t.end)}</div>
+      </div>
+      <div class="list-item-right" style="font-size:11px;color:var(--text3);">${days===0?'今天':days+'天後'}</div>
+    </div>`).join('')||'<div class="empty">暫無近期事件</div>';
+}
+function showCalDay(y,m,day){
+  const dt=new Date(y,m,day);
+  const evts=getCalEvts(dt);
+  if(!evts.length) return;
+  document.getElementById('calEvents').innerHTML=`
+    <div style="font-size:12px;color:var(--blue);font-weight:700;padding:8px 0;border-bottom:1px solid var(--border);margin-bottom:8px">${y}/${m+1}/${day} 的事件</div>
+    ${evts.map(e=>`<div class="list-item" onclick="openDrawer('${e.t.id}')">
+      <div class="list-item-icon" style="color:${e.color}">${e.type==='start'?'▶':'⏹'}</div>
+      <div class="list-item-body"><div class="list-item-title">${e.name}</div>
+      <div class="list-item-sub">${e.type==='start'?'開始日期':'截止日期'}</div></div>
+    </div>`).join('')}`;
+}
+function calNav(dir){
+  calM+=dir;if(calM>11){calM=0;calY++;}if(calM<0){calM=11;calY--;}renderCal();
+}
+
+// ================================================================
+// UPDATE
+// ================================================================
+function renderUpdSel(){
+  document.getElementById('updSel').innerHTML=
+    '<option value="">— 請選擇 —</option>'+
+    tasks.map(t=>`<option value="${t.id}">${t.dept}·${t.idx}·${t.name.slice(0,20)}</option>`).join('');
+  document.getElementById('memRef').innerHTML=
+    '<option value="">— 不關聯 —</option>'+
+    tasks.map(t=>`<option value="${t.id}">${t.dept}·${t.name.slice(0,24)}</option>`).join('');
+}
+function loadUpd(id){
+  const t=tasks.find(x=>x.id===id);if(!t) return;
+  document.getElementById('updPct').value=t.pct;
+  document.getElementById('updStart').value=ff(t.start).replace(/\//g,'-');
+  document.getElementById('updEnd').value=ff(t.end).replace(/\//g,'-');
+  document.getElementById('updStatus').value=t.status||'inprogress';
+  document.getElementById('updNote').value=t.note||'';
+}
+function saveUpd(){
+  const id=document.getElementById('updSel').value;
+  if(!id){showToast('請先選擇項目','error');return;}
+  const t=tasks.find(x=>x.id===id);if(!t) return;
+  t.pct=parseInt(document.getElementById('updPct').value)||0;
+  t.status=document.getElementById('updStatus').value;
+  t.note=document.getElementById('updNote').value;
+  const sv2=document.getElementById('updStart').value;
+  const ev=document.getElementById('updEnd').value;
+  if(sv2) t.start=new Date(sv2); if(ev) t.end=new Date(ev);
+  if(t.pct>=100) t.status='done';
+  sv(tasks);
+  logs.unshift({id,time:new Date().toLocaleString('zh-TW'),name:t.name,dept:t.dept,pct:t.pct,status:t.status,note:t.note});
+  if(logs.length>60) logs.pop(); sl(logs);
+  renderAll(); renderUpdLog();
+  showToast('進度已更新 ✓');
+}
+function renderUpdLog(){
+  document.getElementById('updLog').innerHTML=logs.slice(0,15).map(e=>`
+    <div class="list-item">
+      <div class="list-item-icon">📝</div>
+      <div class="list-item-body">
+        <div class="list-item-title">${e.name}</div>
+        <div class="list-item-sub">${e.dept} · ${e.status} · ${e.pct}% · ${e.time}</div>
+        ${e.note?`<div style="font-size:11px;color:var(--text3);margin-top:2px">${e.note}</div>`:''}
+      </div>
+    </div>`).join('')||'<div class="empty">暫無記錄</div>';
+}
+
+// ================================================================
+// MEMORY
+// ================================================================
+const CI={decision:{lbl:'決策記錄',cls:'mc-dec',icon:'📋'},issue:{lbl:'問題追蹤',cls:'mc-iss',icon:'🔴'},
+  note:{lbl:'施工筆記',cls:'mc-note',icon:'📝'},contact:{lbl:'聯絡窗口',cls:'mc-con',icon:'👤'},
+  lesson:{lbl:'經驗教訓',cls:'mc-les',icon:'💡'}};
+const PI={high:{lbl:'高',c:'var(--red)'},medium:{lbl:'中',c:'var(--yellow)'},low:{lbl:'低',c:'var(--green)'}};
+
+function addMem(){
+  const title=document.getElementById('memTitle').value.trim();
+  if(!title){showToast('標題不能為空','error');return;}
+  mems.unshift({id:'m'+Date.now(),title,
+    cat:document.getElementById('memCat').value,
+    pri:document.getElementById('memPri').value,
+    ref:document.getElementById('memRef').value,
+    content:document.getElementById('memContent').value.trim(),
+    pinned:false,created:new Date().toLocaleString('zh-TW')});
+  sm(mems);
+  document.getElementById('memTitle').value='';
+  document.getElementById('memContent').value='';
+  renderMem(); showToast('記憶已新增 📌');
+}
+function delMem(id){mems=mems.filter(m=>m.id!==id);sm(mems);renderMem();showToast('已刪除','error');}
+function pinMem(id){const m=mems.find(x=>x.id===id);if(!m) return;m.pinned=!m.pinned;sm(mems);renderMem();}
+
+function renderMem(){
+  const cats=['all',...Object.keys(CI)];
+  document.getElementById('memCatFilter').innerHTML=cats.map(c=>`
+    <button class="fchip ${memCatF===c?'active':''}" onclick="setMemCat('${c}')">
+      ${c==='all'?'全部':(CI[c].icon+' '+CI[c].lbl)}</button>`).join('');
+  const q=(document.getElementById('memSearch').value||'').toLowerCase();
+  const entryHTML=m=>{
+    const ci=CI[m.cat]||CI.note,pi=PI[m.pri]||PI.medium;
+    const ref=m.ref?tasks.find(t=>t.id===m.ref):null;
+    return `<div class="mem-entry">
+      <div class="mem-entry-header">
+        <div><span class="mem-cat ${ci.cls}">${ci.icon} ${ci.lbl}</span>
+          <span style="font-size:10px;color:${pi.c};margin-left:6px;font-weight:700">● ${pi.lbl}優先</span></div>
+        <div style="display:flex;gap:2px">
+          <button class="mem-pin-btn ${m.pinned?'on':''}" onclick="pinMem('${m.id}')">📌</button>
+          <button class="mem-del-btn" onclick="delMem('${m.id}')">✕</button>
+        </div>
+      </div>
+      <div class="mem-entry-title">${m.title}</div>
+      <div class="mem-entry-body">${m.content||'<span style="color:var(--text3)">無內容</span>'}</div>
+      ${ref?`<div><span class="badge b-blue" style="font-size:10px">🔗 ${ref.dept}·${ref.name.slice(0,18)}</span></div>`:''}
+      <div class="mem-meta"><span>🕐 ${m.created}</span></div>
+    </div>`;
+  };
+  const pinned=mems.filter(m=>m.pinned);
+  document.getElementById('pinnedMem').innerHTML=pinned.length?`
+    <div class="pinned-banner">
+      <div class="pinned-banner-title">📌 置頂記憶 (${pinned.length})</div>
+      ${pinned.map(entryHTML).join('')}
+    </div>` : '';
+  let list=mems.filter(m=>{
+    if(m.pinned) return false;
+    const matchQ=!q||(m.title+m.content+m.cat).toLowerCase().includes(q);
+    const matchC=memCatF==='all'||m.cat===memCatF;
+    return matchQ&&matchC;
+  });
+  document.getElementById('memList').innerHTML=list.length?list.map(entryHTML).join('')
+    :`<div class="empty">暫無記憶條目<br><span style="font-size:11px">在上方填寫後點「新增」</span></div>`;
+}
+function setMemCat(c){memCatF=c;renderMem();}
+
+// ================================================================
+// TABS
+// ================================================================
+function switchTab(name){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  const idx=['overview','tasks','gantt','calendar','update','memory'].indexOf(name);
+  if(idx>=0) document.querySelectorAll('.nav-item')[idx].classList.add('active');
+  if(name==='gantt') renderGantt();
+  if(name==='calendar') renderCal();
+  if(name==='update'){renderUpdSel();renderUpdLog();}
+  if(name==='memory') renderMem();
+  document.querySelector('.main-content').scrollTop=0;
+}
+
+// ================================================================
+// TOAST
+// ================================================================
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=(type==='success'?'✅ ':'❌ ')+msg;
+  t.className='show';
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ================================================================
+// PWA
+// ================================================================
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').then(()=>console.log('SW registered'));
+}
+window.addEventListener('online',()=>{document.getElementById('offlineBar').classList.remove('show');});
+window.addEventListener('offline',()=>{document.getElementById('offlineBar').classList.add('show');});
+
+// iOS install hint
+const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
+const isStandalone=window.navigator.standalone;
+const dismissed=localStorage.getItem('installDismissed');
+if(isIOS&&!isStandalone&&!dismissed){
+  document.getElementById('installBanner').classList.add('show');
+}
+function dismissInstall(){
+  document.getElementById('installBanner').classList.remove('show');
+  localStorage.setItem('installDismissed','1');
+}
+
+// Date
+const T=TODAY;
+document.getElementById('dateDisplay').textContent=`${T.getFullYear()}/${T.getMonth()+1}/${T.getDate()}`;
+
+// ================================================================
+// INIT
+// ================================================================
+function renderAll(){
+  renderStats(); renderAlerts(); renderRemind7d(); renderMilestone(); renderTasks();
+}
+renderAll();
+</script>
+</body>
+</html>
